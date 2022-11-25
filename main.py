@@ -6,7 +6,7 @@ from settings import TOKEN
 from currency_handler import (start_choose_currancy, first_currency,
                               end, restart)
 from handlers import (start, key_board, hide_key_board, main_currency,
-                      second_currency)
+                      second_currency, convert)
 
 
 logging.basicConfig(
@@ -31,6 +31,8 @@ if __name__ == '__main__':
         )
 
     hide_key_board_handler = CommandHandler('hide_key_board', hide_key_board)
+
+    convert_handler = MessageHandler(filters.TEXT, convert)
 
     currency_handler = ConversationHandler(
 
@@ -61,6 +63,7 @@ if __name__ == '__main__':
         main_currency_handler,
         second_currency_handler,
         hide_key_board_handler,
+        convert_handler,
     ))
 
     application.run_polling()

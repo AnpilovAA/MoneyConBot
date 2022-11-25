@@ -93,6 +93,13 @@ class DatabaseUpdate:
         pass
 
 
+def query_currency(user, tumbler=True):
+    first_currency = DatabaseRead()
+    if tumbler:
+        return first_currency.get_user_currency(user)
+    return first_currency.get_user_currency(user, False)
+
+
 def take_data_from_currency_db():
     try:
         query = session.query(Currency).all()
@@ -123,13 +130,3 @@ def add_to_db(to_db):
         print(ex)
     else:
         session.commit()
-
-
-if __name__ == '__main__':
-    # test = DatabaseWrite()
-    # test.insert_currency_to_db(3321412, 'usd', 'rub')
-    # print(test.check_user())
-    # test.insert_user()
-    # take_data_from_currency_db()
-    test = DatabaseRead()
-    test.get_user_currency(470308069)
