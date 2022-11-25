@@ -13,7 +13,8 @@ class DatabaseWrite(DataBaseSession):
     def __init__(self) -> None:
         super().__init__()
 
-    def check_user_in_users_db(self, user_id):
+    @classmethod
+    def check_user_in_users_db(cls, user_id):
         try:
             query = session.query(Users
                                   ).filter_by(user_id=user_id
@@ -32,8 +33,9 @@ class DatabaseWrite(DataBaseSession):
         except Exception as ex:
             print('\n', ex)
 
+    @classmethod
     def check_user_in_user_currency_db(
-        self,
+        cls,
         user: int
     ):
         try:
