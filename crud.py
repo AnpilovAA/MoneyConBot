@@ -1,5 +1,6 @@
 from db import session
 from models import Currency, Users, UserCurrencies
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
 
@@ -68,9 +69,10 @@ class DatabaseWrite(DataBaseSession):
             print(ex)
         else:
             session.commit()
+            session.close()
 
 
-class DatabaseRead:
+class DatabaseRead(DataBaseSession):
 
     def __init__(self) -> None:
         super().__init__()
@@ -86,14 +88,48 @@ class DatabaseRead:
         except Exception as ex:
             print(ex)
 
+    @classmethod
+    def currency_values(cls, user):
+        second_currency = query_currency(user=user, tumbler=False)
+        query = session.query(Currency).filter_by(
+            short_name=second_currency).one()
+        return query.currency_value
 
-class DatabaseUpdate:
+
+class DatabaseUpdate(DataBaseSession):
     def __init__(self) -> None:
         super().__init__()
-        pass
+
+    def update_currency(self, user, currency, tumbler=True):
+        try:
+            user_user_currency = select(UserCurrencies
+                                        ).where(UserCurrencies.user_id == user)
+            user_currency = session.scalars(user_user_currency).one()
+            if tumbler:
+                user_currency.first_currency_short_name = currency
+            else:
+                user_currency.second_currency_short_name = currency
+        except Exception as ex:
+            print(ex)
+        else:
+            session.commit()
+            session.close()
+
+    def update_currency_value(self, short_name, value):
+        try:
+            currency = select(Currency).where(
+                Currency.short_name == short_name)
+            new_currency = session.scalar(currency)
+            new_currency.currency_value = value
+        except Exception as ex:
+            print(ex)
+        else:
+            session.commit()
+            session.close()
 
 
 def query_currency(user, tumbler=True):
+    """arg tumbler if True give main currency if False second"""
     first_currency = DatabaseRead()
     if tumbler:
         return first_currency.get_user_currency(user)
@@ -130,3 +166,4 @@ def add_to_db(to_db):
         print(ex)
     else:
         session.commit()
+

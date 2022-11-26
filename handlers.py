@@ -2,7 +2,7 @@ from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 
 from keyboard import main_key_board
-from crud import DatabaseWrite, query_currency
+from crud import DatabaseRead, DatabaseWrite, query_currency
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -46,7 +46,7 @@ async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = query_currency(user, False)
 
     await update.message.reply_text(
-        text=f'Your main currency is - {result}'
+        text=f'Your second currency is - {result}'
     )
 
 
@@ -57,8 +57,15 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if DatabaseWrite.check_user_in_user_currency_db(user) is False:
         try:
             if float(user_text):
+                first_currency = float(user_text)
+                second_value = float(DatabaseRead.currency_values(user))
+
+                main_curreuncy = query_currency(user)
+                second = query_currency(user, False)
+
+                result = first_currency * second_value
                 await update.message.reply_text(
-                    text=f'{user_text} {query_currency(user)}'
+                    text=f'{user_text} {main_curreuncy} - {result} {second}'
                 )
         except ValueError:
             return None
