@@ -3,7 +3,7 @@ from crud import take_data_from_currency_db
 from settings import INFO
 
 
-def first_keyboard():
+def currency_keyboard():
     currency = take_data_from_currency_db()
     data = preparing_data(currency)
     list_of_currency = validate_data(data)
@@ -44,7 +44,3 @@ def create_inline_buttons(*args, **kwargs):
             )
     first_layer.append(second_layer)
     return first_layer
-
-
-if __name__ == '__main__':
-    first_keyboard()

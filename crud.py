@@ -90,10 +90,15 @@ class DatabaseRead(DataBaseSession):
 
     @classmethod
     def currency_values(cls, user):
+        values = []
+        first_currency = query_currency(user=user)
         second_currency = query_currency(user=user, tumbler=False)
-        query = session.query(Currency).filter_by(
-            short_name=second_currency).one()
-        return query.currency_value
+        name_currency = [first_currency, second_currency]
+        for name in name_currency:
+            query = session.query(Currency).filter_by(
+                short_name=name).one()
+            values.append(query.currency_value)
+        return values
 
 
 class DatabaseUpdate(DataBaseSession):
@@ -102,18 +107,20 @@ class DatabaseUpdate(DataBaseSession):
 
     def update_currency(self, user, currency, tumbler=True):
         try:
+            print(user, currency)
             user_user_currency = select(UserCurrencies
                                         ).where(UserCurrencies.user_id == user)
             user_currency = session.scalars(user_user_currency).one()
             if tumbler:
+                print(user_currency.first_currency_short_name, currency)
                 user_currency.first_currency_short_name = currency
             else:
                 user_currency.second_currency_short_name = currency
         except Exception as ex:
             print(ex)
+            session.rollback()
         else:
             session.commit()
-            session.close()
 
     def update_currency_value(self, short_name, value):
         try:
@@ -123,17 +130,40 @@ class DatabaseUpdate(DataBaseSession):
             new_currency.currency_value = value
         except Exception as ex:
             print(ex)
+            session.rollback()
         else:
             session.commit()
-            session.close()
+
+    def switch_user_currencies(self, user, currency):
+        try:
+            user_user_currency = select(UserCurrencies
+                                        ).where(UserCurrencies.user_id == user)
+            user_currency = session.scalars(user_user_currency).one()
+            user_currency.first_currency_short_name = currency[1]
+            user_currency.second_currency_short_name = currency[0]
+        except Exception as ex:
+            print(ex)
+            session.rollback()
+        else:
+            session.commit()
 
 
 def query_currency(user, tumbler=True):
     """arg tumbler if True give main currency if False second"""
-    first_currency = DatabaseRead()
+    currency = DatabaseRead()
     if tumbler:
-        return first_currency.get_user_currency(user)
-    return first_currency.get_user_currency(user, False)
+        return currency.get_user_currency(user)
+    return currency.get_user_currency(user, False)
+
+
+def user_currency_update(user, currency, tumbler=True):
+    update = DatabaseUpdate()
+    try:
+        if tumbler:
+            return update.update_currency(user, currency)
+        return update.update_currency(user, currency, False)
+    except Exception as ex:
+        print(ex)
 
 
 def take_data_from_currency_db():
@@ -166,4 +196,3 @@ def add_to_db(to_db):
         print(ex)
     else:
         session.commit()
-

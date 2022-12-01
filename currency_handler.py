@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
-from inline_buttons import first_keyboard
-from crud import DatabaseWrite
+from inline_buttons import currency_keyboard
+from crud import DatabaseWrite, user_currency_update
 from settings import INFO_FROM_BUTTONS, INFO
 
 INFO_FROM_BUTTONS
@@ -13,7 +13,7 @@ async def start_choose_currancy(update: Update,
     message = update.message
     await message.reply_text(
         text='Please choose first currency',
-        reply_markup=first_keyboard()
+        reply_markup=currency_keyboard()
     )
     return 'first'
 
@@ -32,7 +32,7 @@ async def first_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     INFO.append(first_currency)
     await update.callback_query.edit_message_text(
         text='Choose second currency',
-        reply_markup=first_keyboard()
+        reply_markup=currency_keyboard()
     )
     return 'second'
 
@@ -71,5 +71,33 @@ async def restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
      "Sorry i don't understant( Do you want try /start_choose_currancy again?"
+    )
+    return ConversationHandler.END
+
+
+async def change_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    user = update.effective_user.id
+    currency = query.data
+    user_currency_update(user, currency)
+
+    await update.callback_query.edit_message_text(
+        text=f'You main currency is {currency} now'
+    )
+    return ConversationHandler.END
+
+
+async def change_second(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    user = update.effective_user.id
+    currency = query.data
+    user_currency_update(user, currency, False)
+
+    await update.callback_query.edit_message_text(
+        text=f'You second currency is {currency} now'
     )
     return ConversationHandler.END

@@ -4,9 +4,10 @@ from telegram.ext import (ApplicationBuilder, CommandHandler,
                           MessageHandler, filters)
 from settings import TOKEN
 from currency_handler import (start_choose_currancy, first_currency,
-                              end, restart)
+                              end, restart, change_main, change_second)
 from handlers import (start, key_board, hide_key_board, main_currency,
-                      second_currency, convert)
+                      second_currency, convert, change_main_currency,
+                      change_second_currency, switch)
 
 
 logging.basicConfig(
@@ -30,6 +31,8 @@ if __name__ == '__main__':
         filters.Regex('^(second currency)$'), second_currency
         )
 
+    switch_handler = MessageHandler(filters.Regex('^(switch)$'), switch)
+
     hide_key_board_handler = CommandHandler('hide_key_board', hide_key_board)
 
     convert_handler = MessageHandler(filters.TEXT, convert)
@@ -37,23 +40,45 @@ if __name__ == '__main__':
     currency_handler = ConversationHandler(
 
         entry_points=[
-            MessageHandler(filters.Regex('^(1)$'), start_choose_currancy),
+            MessageHandler(
+                filters.Regex('^(restart)$'), start_choose_currancy
+                ),
             CommandHandler('start_choose_currancy', start_choose_currancy),
             ],
 
         states={
             'first': [
                 CallbackQueryHandler(first_currency,
-                                     pattern='^(usd|rub)$')
+                                     pattern=str)
                 ],
             'second': [
-                CallbackQueryHandler(end, pattern='^(usd|rub)$')
+                CallbackQueryHandler(end, pattern=str)
             ]
         },
 
         fallbacks=[
             MessageHandler(filters.ALL, restart)
             ]
+    )
+
+    change_main_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler('change_main_currency', change_main_currency)
+        ],
+        states={
+            'change main': [CallbackQueryHandler(change_main, pattern=str)]
+        },
+        fallbacks=[]
+    )
+
+    change_second_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler('change_second_currency', change_second_currency)
+        ],
+        states={
+            'change second': [CallbackQueryHandler(change_second, pattern=str)]
+        },
+        fallbacks=[]
     )
 
     application.add_handlers((
@@ -63,6 +88,9 @@ if __name__ == '__main__':
         main_currency_handler,
         second_currency_handler,
         hide_key_board_handler,
+        change_main_handler,
+        change_second_handler,
+        switch_handler,
         convert_handler,
     ))
 

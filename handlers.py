@@ -1,8 +1,13 @@
 from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 
+from inline_buttons import currency_keyboard
 from keyboard import main_key_board
-from crud import DatabaseRead, DatabaseWrite, query_currency
+from crud import (DatabaseRead, DatabaseWrite,
+                  query_currency, DatabaseUpdate)
+from settings import INFO
+
+INFO
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -37,7 +42,7 @@ async def main_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = query_currency(user)
 
     await update.message.reply_text(
-        text=f'Your main currency is - {result}'
+        text=f'Your main currency is - {result} /change_main_currency'
     )
 
 
@@ -46,7 +51,7 @@ async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = query_currency(user, False)
 
     await update.message.reply_text(
-        text=f'Your second currency is - {result}'
+        text=f'Your second currency is - {result} /change_second_currency'
     )
 
 
@@ -57,15 +62,77 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if DatabaseWrite.check_user_in_user_currency_db(user) is False:
         try:
             if float(user_text):
-                first_currency = float(user_text)
-                second_value = float(DatabaseRead.currency_values(user))
+                user_value = float(user_text)
+                values = DatabaseRead.currency_values(user)
 
-                main_curreuncy = query_currency(user)
-                second = query_currency(user, False)
+                first_value = values[0]
+                second_value = values[1]
 
-                result = first_currency * second_value
+                name_main_currency = query_currency(user)
+                name_second_currency = query_currency(user, False)
+
+                coefficient = second_value / first_value
+                result = user_value * float(coefficient)
                 await update.message.reply_text(
-                    text=f'{user_text} {main_curreuncy} - {result} {second}'
-                )
+                        text=f'{user_text} {name_main_currency} {"%.2f" % result} {name_second_currency}'
+                    )
         except ValueError:
             return None
+
+
+async def change_main_currency(update: Update,
+                               context: ContextTypes.DEFAULT_TYPE):
+    global INFO
+
+    user = update.effective_user.id
+
+    main_currency = DatabaseRead()
+    currency = main_currency.get_user_currency(user, False)
+
+    INFO.append(currency.lower())  # need correct in future
+
+    await update.message.reply_text(
+        text='Please choose currency',
+        reply_markup=currency_keyboard()
+    )
+    INFO.clear()
+    return 'change main'
+
+
+async def change_second_currency(update: Update,
+                                 context: ContextTypes.DEFAULT_TYPE):
+
+    global INFO
+
+    user = update.effective_user.id
+
+    main_currency = DatabaseRead()
+    currency = main_currency.get_user_currency(user)
+
+    INFO.append(currency.lower())  # need correct in future
+
+    await update.message.reply_text(
+        text='Please choose currency',
+        reply_markup=currency_keyboard()
+    )
+    INFO.clear()
+    return 'change second'
+
+
+async def switch(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user.id
+
+    tuple_of_currency = ()
+
+    currencies = DatabaseRead()
+    first = currencies.get_user_currency(user)
+    second = currencies.get_user_currency(user, False)
+
+    tuple_of_currency += (first, second,)
+
+    switch_currency = DatabaseUpdate()
+    switch_currency.switch_user_currencies(user, tuple_of_currency)
+
+    await update.message.reply_text(
+        text=f'Now you main is {second}, and second is {first}'
+    )
