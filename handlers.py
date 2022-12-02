@@ -133,6 +133,8 @@ async def switch(update: Update, context: ContextTypes.DEFAULT_TYPE):
     switch_currency = DatabaseUpdate()
     switch_currency.switch_user_currencies(user, tuple_of_currency)
 
+    print(tuple_of_currency)
+
     await update.message.reply_text(
         text=f'Now you main is {second}, and second is {first}'
     )

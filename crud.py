@@ -107,45 +107,54 @@ class DatabaseUpdate(DataBaseSession):
 
     def update_currency(self, user, currency, tumbler=True):
         try:
-            print(user, currency)
             user_user_currency = select(UserCurrencies
                                         ).where(UserCurrencies.user_id == user)
             user_currency = session.scalars(user_user_currency).one()
+
             if tumbler:
-                print(user_currency.first_currency_short_name, currency)
                 user_currency.first_currency_short_name = currency
+                return self.update_commit_or_rollback()
             else:
                 user_currency.second_currency_short_name = currency
+                return self.update_commit_or_rollback()
+
         except Exception as ex:
             print(ex)
-            session.rollback()
-        else:
-            session.commit()
 
     def update_currency_value(self, short_name, value):
         try:
+ 
             currency = select(Currency).where(
                 Currency.short_name == short_name)
             new_currency = session.scalar(currency)
             new_currency.currency_value = value
+
+            return self.update_commit_or_rollback()
+
         except Exception as ex:
             print(ex)
-            session.rollback()
-        else:
-            session.commit()
 
     def switch_user_currencies(self, user, currency):
         try:
+
             user_user_currency = select(UserCurrencies
                                         ).where(UserCurrencies.user_id == user)
             user_currency = session.scalars(user_user_currency).one()
+
             user_currency.first_currency_short_name = currency[1]
             user_currency.second_currency_short_name = currency[0]
+
+            return self.update_commit_or_rollback()
+
         except Exception as ex:
             print(ex)
-            session.rollback()
-        else:
+
+    @classmethod
+    def update_commit_or_rollback(cls):
+        try:
             session.commit()
+        except Exception:
+            session.rollback()
 
 
 def query_currency(user, tumbler=True):
