@@ -3,8 +3,10 @@ from telegram.ext import (ApplicationBuilder, CommandHandler,
                           ConversationHandler, CallbackQueryHandler,
                           MessageHandler, filters)
 from settings import TOKEN
+from db import Base, engine
 from currency_handler import (start_choose_currancy, first_currency,
-                              end, restart, change_main, change_second)
+                              end, restart, change_main, change_second,
+                              test_alfa)
 from handlers import (start, key_board, hide_key_board, main_currency,
                       second_currency, convert, change_main_currency,
                       change_second_currency, switch)
@@ -17,6 +19,7 @@ logging.basicConfig(
 
 
 if __name__ == '__main__':
+    Base.metadata.create_all(engine)
 
     application = ApplicationBuilder().token(TOKEN).build()
 
@@ -30,6 +33,8 @@ if __name__ == '__main__':
     second_currency_handler = MessageHandler(
         filters.Regex('^(second currency)$'), second_currency
         )
+
+    test_handler = CommandHandler('test_alfa', test_alfa)
 
     switch_handler = MessageHandler(filters.Regex('^(switch)$'), switch)
 
@@ -91,6 +96,7 @@ if __name__ == '__main__':
         change_main_handler,
         change_second_handler,
         switch_handler,
+        test_handler,
         convert_handler,
     ))
 

@@ -1,10 +1,27 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from crud import take_data_from_currency_db
+from crud import DatabaseRead
 from settings import INFO
+from string import ascii_uppercase
+
+
+def alfabet_keyboard():
+    alfa_buttons = {}
+    for alfa in ascii_uppercase:
+        """Create dictionary for inline buttons
+        where key is name button and value is callback"""
+        alfa_buttons[alfa] = ascii_uppercase[ascii_uppercase.index(alfa)]
+
+    extract_value = alfa_buttons.items()
+    buttons = ()
+    for values in extract_value:
+        buttons += (values,)
+    return InlineKeyboardMarkup(create_inline_buttons(*buttons))
+
+    # return alfa_buttons
 
 
 def currency_keyboard():
-    currency = take_data_from_currency_db()
+    currency = DatabaseRead.take_data_from_currency_db()
     data = preparing_data(currency)
     list_of_currency = validate_data(data)
     return InlineKeyboardMarkup(create_inline_buttons(*list_of_currency))
@@ -44,3 +61,7 @@ def create_inline_buttons(*args, **kwargs):
             )
     first_layer.append(second_layer)
     return first_layer
+
+
+if __name__ == '__main__':
+    alfabet_keyboard()

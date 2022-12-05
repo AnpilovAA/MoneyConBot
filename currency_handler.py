@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
-from inline_buttons import currency_keyboard
+from inline_buttons import currency_keyboard, alfabet_keyboard
 from crud import DatabaseWrite, user_currency_update
 from settings import INFO_FROM_BUTTONS, INFO
 
@@ -101,3 +101,10 @@ async def change_second(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text=f'You second currency is {currency} now'
     )
     return ConversationHandler.END
+
+
+async def test_alfa(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        text='Test',
+        reply_markup=alfabet_keyboard()
+    )

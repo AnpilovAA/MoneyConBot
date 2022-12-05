@@ -2,7 +2,7 @@ from sqlalchemy import (Date, DECIMAL, Column,
                         Text, VARCHAR, Integer,
                         CheckConstraint, ForeignKeyConstraint,
                         )
-from db import Base, engine
+from db import Base
 
 
 class Users(Base):
@@ -17,7 +17,7 @@ class Currency(Base):
     short_name = Column(VARCHAR, nullable=False, unique=True)
     full_name = Column(Text, nullable=False)
     currency_value = Column(DECIMAL, nullable=False)
-    date = Column(Date, nullable=False)
+    date = Column(Date)
 
 
 class UserCurrencies(Base):
@@ -37,8 +37,3 @@ class UserCurrencies(Base):
                          ['currency.id'])
     ForeignKeyConstraint(['user_currencies.second_currency_short_name'],
                          ['currency.id'])
-
-
-if __name__ == '__main__':
-    Base.metadata.drop_all(engine, checkfirst=True)
-    Base.metadata.create_all(engine)

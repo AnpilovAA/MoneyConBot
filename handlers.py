@@ -68,13 +68,14 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 first_value = values[0]
                 second_value = values[1]
 
-                name_main_currency = query_currency(user)
-                name_second_currency = query_currency(user, False)
+                name_main_curren = query_currency(user)
+                name_second_curren = query_currency(user, False)
 
                 coefficient = second_value / first_value
                 result = user_value * float(coefficient)
+                result = "%.2f" % result
                 await update.message.reply_text(
-                        text=f'{user_text} {name_main_currency} {"%.2f" % result} {name_second_currency}'
+                        text=f'{user_text} {name_main_curren} {result} {name_second_curren}'
                     )
         except ValueError:
             return None
@@ -89,7 +90,7 @@ async def change_main_currency(update: Update,
     main_currency = DatabaseRead()
     currency = main_currency.get_user_currency(user, False)
 
-    INFO.append(currency.lower())  # need correct in future
+    INFO.append(currency)  # need correct in future
 
     await update.message.reply_text(
         text='Please choose currency',

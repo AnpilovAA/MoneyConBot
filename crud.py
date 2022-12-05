@@ -2,6 +2,7 @@ from db import session
 from models import Currency, Users, UserCurrencies
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from api_requests import data_for_currency_db, request_api
 
 
 class DataBaseSession:
@@ -30,7 +31,8 @@ class DatabaseWrite(DataBaseSession):
     def insert_user_to_db(self, user_id):
         try:
             if self.check_user_in_users_db(user_id):
-                return add_to_db(Users(user_id=user_id))
+                return self.add_to_db(Users(user_id=user_id))
+
         except Exception as ex:
             print('\n', ex)
 
@@ -57,11 +59,26 @@ class DatabaseWrite(DataBaseSession):
                         user_id=user,
                         first_currency_short_name=first_currency,
                         second_currency_short_name=second_currency)
-                return add_to_db(currency_to_db)
+
+                return self.add_to_db(currency_to_db)
         except TypeError as type_error:
             print(type_error, 'raise in insert_currency ')
 
-    def add_to_db(self, object):
+    def insert_data_to_currency_db(self, symbol, full_name, value):
+        try:
+
+            insert_data = Currency(
+                short_name=symbol,
+                full_name=full_name,
+                currency_value=value
+            )
+            return self.add_to_db(insert_data)
+
+        except Exception as ex:
+            print(ex)
+
+    @classmethod
+    def add_to_db(cls, object):
         try:
             session.add(object)
         except Exception as ex:
@@ -89,6 +106,28 @@ class DatabaseRead(DataBaseSession):
             print(ex)
 
     @classmethod
+    def take_data_from_currency_db(cls):
+        try:
+            query = session.query(Currency).all()
+            if len(query) == 0:
+
+                insert_to_currency_db = DatabaseWrite()
+                symblo_name_value = request_api()
+
+                for symbol_fullname_value in symblo_name_value:
+                    print(symblo_name_value)
+                    insert_to_currency_db.insert_data_to_currency_db(
+                        symbol_fullname_value[0],
+                        symbol_fullname_value[1],
+                        symbol_fullname_value[2])
+                DatabaseRead.take_data_from_currency_db()
+        except NoResultFound as empty:
+            print(empty)
+
+        else:
+            return query
+
+    @classmethod
     def currency_values(cls, user):
         values = []
         first_currency = query_currency(user=user)
@@ -99,6 +138,15 @@ class DatabaseRead(DataBaseSession):
                 short_name=name).one()
             values.append(query.currency_value)
         return values
+
+    @classmethod
+    def currency_filter(cls, name):
+        try:
+            query = session.query(Currency).filter(
+                Currency.full_name.like(f'{name}%')).all()
+            return query
+        except Exception as ex:
+            print(ex)
 
 
 class DatabaseUpdate(DataBaseSession):
@@ -123,7 +171,6 @@ class DatabaseUpdate(DataBaseSession):
 
     def update_currency_value(self, short_name, value):
         try:
- 
             currency = select(Currency).where(
                 Currency.short_name == short_name)
             new_currency = session.scalar(currency)
@@ -175,33 +222,7 @@ def user_currency_update(user, currency, tumbler=True):
         print(ex)
 
 
-def take_data_from_currency_db():
-    try:
-        query = session.query(Currency).all()
-    except NoResultFound as empty:
-        print(empty)
-    else:
-        return query
-
-
-def check_user(user):
-    try:
-        query = session.query(Users
-                              ).filter_by(user_id=user
-                                          ).one()
-    except NoResultFound as empty:
-        print(empty)
-        return True
-    else:
-        if query.user_id == user:
-            return False
-
-
-def add_to_db(to_db):
-    try:
-        session.add(to_db)
-    except Exception as ex:
-        session.rollback()
-        print(ex)
-    else:
-        session.commit()
+if __name__ == '__main__':
+    a = DatabaseRead.currency_filter('A')
+    for i in a:
+        print(i.full_name)
