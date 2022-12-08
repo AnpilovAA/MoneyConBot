@@ -17,8 +17,6 @@ def alfabet_keyboard():
         buttons += (values,)
     return InlineKeyboardMarkup(create_inline_buttons(*buttons))
 
-    # return alfa_buttons
-
 
 def currency_keyboard():
     currency = DatabaseRead.take_data_from_currency_db()
@@ -53,13 +51,27 @@ def validate_data(generator):
 def create_inline_buttons(*args, **kwargs):
     first_layer = []
     second_layer = []
+    buttons = []
+    len_arg = [*args]
+    len_arg = len(len_arg)
     for country_currency in args:
         second_layer.append(
             InlineKeyboardButton(
                 text=country_currency[0],
                 callback_data=country_currency[1])
             )
-    first_layer.append(second_layer)
+
+        if len(second_layer) == 5:
+            len_arg -= 5
+            buttons = second_layer.copy()
+            first_layer.append(buttons)
+            second_layer.clear()
+
+        elif len_arg < 5 and len_arg >= 1:
+            buttons = second_layer.copy()
+            first_layer.append(buttons)
+            second_layer.clear()
+
     return first_layer
 
 

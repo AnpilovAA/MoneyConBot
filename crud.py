@@ -2,7 +2,7 @@ from db import session
 from models import Currency, Users, UserCurrencies
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from api_requests import data_for_currency_db, request_api
+from api_requests import request_api
 
 
 class DataBaseSession:
