@@ -140,7 +140,7 @@ class DatabaseRead(DataBaseSession):
         return values
 
     @classmethod
-    def currency_filter(cls, name):
+    def db_currency_filter_by_letter(cls, name):
         try:
             query = session.query(Currency).filter(
                 Currency.full_name.like(f'{name}%')).all()
@@ -223,6 +223,6 @@ def user_currency_update(user, currency, tumbler=True):
 
 
 if __name__ == '__main__':
-    a = DatabaseRead.currency_filter('A')
+    a = DatabaseRead.db_currency_filter_by_letter('A')
     for i in a:
         print(i.full_name)

@@ -4,11 +4,13 @@ from telegram.ext import (ApplicationBuilder, CommandHandler,
                           MessageHandler, filters)
 from settings import TOKEN
 from db import Base, engine
-from currency_handler import (start_choose_currancy, first_currency,
-                              end, restart, change_main, change_second,
+from currency_handler import (alfabet_first, second_alfabet,
+                              start_choose_currancy,
+                              first_currency, second_currency, restart,
+                              change_main, change_second,
                               test_alfa)
-from handlers import (start, key_board, hide_key_board, main_currency,
-                      second_currency, convert, change_main_currency,
+from handlers import (start, key_board, hide_key_board, get_main_currency,
+                      get_second_currency, convert, change_main_currency,
                       change_second_currency, switch)
 
 
@@ -28,10 +30,10 @@ if __name__ == '__main__':
     key_board_handler = CommandHandler('key_board', key_board)
 
     main_currency_handler = MessageHandler(
-        filters.Regex('^(main currency)$'), main_currency
+        filters.Regex('^(main currency)$'), get_main_currency
         )
     second_currency_handler = MessageHandler(
-        filters.Regex('^(second currency)$'), second_currency
+        filters.Regex('^(second currency)$'), get_second_currency
         )
 
     test_handler = CommandHandler('test_alfa', test_alfa)
@@ -52,12 +54,22 @@ if __name__ == '__main__':
             ],
 
         states={
-            'first': [
+            'alfa': [
+                CallbackQueryHandler(alfabet_first,
+                                     pattern=str)
+            ],
+            'main': [
                 CallbackQueryHandler(first_currency,
                                      pattern=str)
-                ],
+            ],
+
+            'alfa-second': [
+                CallbackQueryHandler(second_alfabet,
+                                     pattern=str)
+            ],
+
             'second': [
-                CallbackQueryHandler(end, pattern=str)
+                CallbackQueryHandler(second_currency, pattern=str)
             ]
         },
 

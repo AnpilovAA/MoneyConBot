@@ -1,5 +1,4 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from crud import DatabaseRead
 from settings import INFO
 from string import ascii_uppercase
 
@@ -18,9 +17,8 @@ def alfabet_keyboard():
     return InlineKeyboardMarkup(create_inline_buttons(*buttons))
 
 
-def currency_keyboard():
-    currency = DatabaseRead.take_data_from_currency_db()
-    data = preparing_data(currency)
+def currency_keyboard(countries):
+    data = preparing_data(countries)
     list_of_currency = validate_data(data)
     return InlineKeyboardMarkup(create_inline_buttons(*list_of_currency))
 
@@ -61,18 +59,35 @@ def create_inline_buttons(*args, **kwargs):
                 callback_data=country_currency[1])
             )
 
-        if len(second_layer) == 5:
+        if len(second_layer) == 5 and len(country_currency[0]) == 1:
             len_arg -= 5
+            # buttons = second_layer.copy()
+            first_layer.append(
+                copy_second_layer(second_layer, buttons))
+            second_layer.clear()
+
+        elif len_arg < 5 and len_arg >= 1 and len(country_currency[0]) == 1:
             buttons = second_layer.copy()
             first_layer.append(buttons)
             second_layer.clear()
 
-        elif len_arg < 5 and len_arg >= 1:
-            buttons = second_layer.copy()
-            first_layer.append(buttons)
+        elif len(second_layer) == 2 and len(country_currency[0]) > 1:
+            len_arg -= 2
+            first_layer.append(
+                copy_second_layer(second_layer, buttons))
+            second_layer.clear()
+
+        elif len_arg <= 2 and len(country_currency[0]) > 1:
+            first_layer.append(
+                copy_second_layer(second_layer, buttons))
             second_layer.clear()
 
     return first_layer
+
+
+def copy_second_layer(second_layer: list, buttons: list):
+    buttons = second_layer.copy()
+    return buttons
 
 
 if __name__ == '__main__':

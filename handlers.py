@@ -37,7 +37,8 @@ async def hide_key_board(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def main_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def get_main_currency(
+        update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user.id
     result = query_currency(user)
 
@@ -46,7 +47,8 @@ async def main_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def get_second_currency(
+        update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user.id
     result = query_currency(user, False)
 
