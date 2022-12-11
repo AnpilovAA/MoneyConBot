@@ -83,9 +83,11 @@ if __name__ == '__main__':
             CommandHandler('change_main_currency', change_main_currency)
         ],
         states={
-            'change main': [CallbackQueryHandler(change_main, pattern=str)]
+            'alfa main': [CallbackQueryHandler(alfabet_first, pattern=str)],
+
+            'main': [CallbackQueryHandler(change_main, pattern=str)]
         },
-        fallbacks=[]
+        fallbacks=[MessageHandler(filters.ALL, change_main_currency)]
     )
 
     change_second_handler = ConversationHandler(
@@ -93,9 +95,10 @@ if __name__ == '__main__':
             CommandHandler('change_second_currency', change_second_currency)
         ],
         states={
-            'change second': [CallbackQueryHandler(change_second, pattern=str)]
+            'second alfa': [CallbackQueryHandler(second_alfabet, pattern=str)],
+            'second': [CallbackQueryHandler(change_second, pattern=str)]
         },
-        fallbacks=[]
+        fallbacks=[MessageHandler(filters.ALL, change_second_currency)]
     )
 
     application.add_handlers((

@@ -1,6 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 from inline_buttons import currency_keyboard, alfabet_keyboard
+from keyboard import main_key_board
 from crud import DatabaseWrite, DatabaseRead, user_currency_update
 from settings import INFO_FROM_BUTTONS, INFO
 
@@ -37,16 +38,13 @@ async def alfabet_first(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def first_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
-    global INFO_FROM_BUTTONS
-    global INFO
+    first_currency = query.data  # Take callback from inline button
 
     user = update.effective_user.id
 
-    first_currency = query.data  # Take callback from inline button
+    check = context.user_data
 
-    id_user_and_currency = (user, first_currency)
-    INFO_FROM_BUTTONS += (id_user_and_currency,)
+    check['user'] = [user, first_currency]
 
     INFO.append(first_currency)
     await update.callback_query.edit_message_text(
@@ -74,47 +72,37 @@ async def second_alfabet(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    user_and_first_currency = context.user_data
     await query.answer()
+
     second_currency = query.data
-
-    global INFO
-    global INFO_FROM_BUTTONS
-
-    INFO_FROM_BUTTONS += (second_currency,)
+    user = update.effective_user.id
 
     insert_data = DatabaseWrite()
 
-    user = update.effective_user.id
-    for id, id_user_currency in enumerate(INFO_FROM_BUTTONS):
-        print(user, id_user_currency)
-        if user in id_user_currency and type(id_user_currency) == tuple:
-            # here need to work
+    if user in user_and_first_currency['user']:
 
-            user = INFO_FROM_BUTTONS[id][0]
-            first_curren = INFO_FROM_BUTTONS[id][1]
-            second_curren = INFO_FROM_BUTTONS[id + 1]
-            print(user, first_curren, second_curren)
-            insert_data.insert_currency_to_db(
-                user=user,
-                first_currency=first_curren,
-                second_currency=second_curren
-            )
-            break
+        user = user_and_first_currency['user'][0]
+        first_curren = user_and_first_currency['user'][1]
+        second_curren = second_currency
+        insert_data.insert_currency_to_db(
+            user=user,
+            first_currency=first_curren,
+            second_currency=second_curren
+        )
 
     await update.callback_query.edit_message_text(
-        "That's all. Do you need main /key_board?"
+        text="That's all. Do you need main /key_board?",
+        reply_markup=main_key_board()
     )
     INFO.clear()
-    INFO_FROM_BUTTONS = ()  # clean tuple for reusing
     return ConversationHandler.END
 
 
 async def restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global INFO
-    global INFO_FROM_BUTTONS
 
     INFO.clear()
-    INFO_FROM_BUTTONS = ()  # clean tuple for reusing
 
     await update.message.reply_text(
      "Sorry i don't understant( Do you want try /start_choose_currancy again?"

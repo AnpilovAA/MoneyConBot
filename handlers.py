@@ -1,7 +1,7 @@
 from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
 
-from inline_buttons import currency_keyboard
+from inline_buttons import alfabet_keyboard
 from keyboard import main_key_board
 from crud import (DatabaseRead, DatabaseWrite,
                   query_currency, DatabaseUpdate)
@@ -77,7 +77,7 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 result = user_value * float(coefficient)
                 result = "%.2f" % result
                 await update.message.reply_text(
-                        text=f'{user_text} {name_main_curren} {result} {name_second_curren}'
+                        f'{user_text} {name_main_curren} {result} {name_second_curren}'
                     )
         except ValueError:
             return None
@@ -96,10 +96,10 @@ async def change_main_currency(update: Update,
 
     await update.message.reply_text(
         text='Please choose currency',
-        reply_markup=currency_keyboard()
+        reply_markup=alfabet_keyboard()
     )
     INFO.clear()
-    return 'change main'
+    return 'alfa main'
 
 
 async def change_second_currency(update: Update,
@@ -112,14 +112,14 @@ async def change_second_currency(update: Update,
     main_currency = DatabaseRead()
     currency = main_currency.get_user_currency(user)
 
-    INFO.append(currency.lower())  # need correct in future
+    INFO.append(currency)  # need correct in future
 
     await update.message.reply_text(
         text='Please choose currency',
-        reply_markup=currency_keyboard()
+        reply_markup=alfabet_keyboard()
     )
     INFO.clear()
-    return 'change second'
+    return 'second alfa'
 
 
 async def switch(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -135,8 +135,6 @@ async def switch(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     switch_currency = DatabaseUpdate()
     switch_currency.switch_user_currencies(user, tuple_of_currency)
-
-    print(tuple_of_currency)
 
     await update.message.reply_text(
         text=f'Now you main is {second}, and second is {first}'

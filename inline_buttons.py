@@ -61,7 +61,6 @@ def create_inline_buttons(*args, **kwargs):
 
         if len(second_layer) == 5 and len(country_currency[0]) == 1:
             len_arg -= 5
-            # buttons = second_layer.copy()
             first_layer.append(
                 copy_second_layer(second_layer, buttons))
             second_layer.clear()
