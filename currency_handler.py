@@ -29,7 +29,7 @@ async def alfabet_first(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_letter_choose
         )
     await update.callback_query.edit_message_text(
-        text='Your main currincy',
+        text='Your main currency',
         reply_markup=currency_keyboard(list_of_country)
     )
     return 'main'
@@ -64,7 +64,7 @@ async def second_alfabet(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_letter_choose
         )
     await update.callback_query.edit_message_text(
-        text='Your second currincy',
+        text='Your second currency',
         reply_markup=currency_keyboard(list_of_country)
     )
     return 'second'
@@ -90,6 +90,7 @@ async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_currency=first_curren,
             second_currency=second_curren
         )
+        print(user_and_first_currency['user'])
 
     await update.callback_query.edit_message_text(
         text="That's all. Do you need main /key_board?",
@@ -138,8 +139,22 @@ async def change_second(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
-async def test_alfa(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        text='Test',
+async def back_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    callback = update.callback_query
+    await callback.answer()
+    await update.callback_query.edit_message_text(
+        text='Your main currency',
         reply_markup=alfabet_keyboard()
     )
+    return 'alfa'
+
+
+async def back_second(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    callback = update.callback_query
+    await callback.answer()
+    await update.callback_query.edit_message_text(
+        text='Your second currency',
+        reply_markup=alfabet_keyboard()
+    )
+
+    return 'alfa-second'

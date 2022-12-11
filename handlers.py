@@ -99,7 +99,7 @@ async def change_main_currency(update: Update,
         reply_markup=alfabet_keyboard()
     )
     INFO.clear()
-    return 'alfa main'
+    return 'alfa'
 
 
 async def change_second_currency(update: Update,
@@ -119,7 +119,7 @@ async def change_second_currency(update: Update,
         reply_markup=alfabet_keyboard()
     )
     INFO.clear()
-    return 'second alfa'
+    return 'alfa-second'
 
 
 async def switch(update: Update, context: ContextTypes.DEFAULT_TYPE):

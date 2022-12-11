@@ -1,6 +1,8 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from settings import INFO
 from string import ascii_uppercase
+from crud import DatabaseRead
+from decorators import add_button_back
 
 
 def alfabet_keyboard():
@@ -13,7 +15,9 @@ def alfabet_keyboard():
     extract_value = alfa_buttons.items()
     buttons = ()
     for values in extract_value:
-        buttons += (values,)
+        result = DatabaseRead.db_currency_filter_by_letter(values[0])
+        if len(result) > 0:
+            buttons += (values,)
     return InlineKeyboardMarkup(create_inline_buttons(*buttons))
 
 
@@ -46,12 +50,15 @@ def validate_data(generator):
     return tuple(validate_list)
 
 
+@add_button_back
 def create_inline_buttons(*args, **kwargs):
     first_layer = []
     second_layer = []
     buttons = []
+
     len_arg = [*args]
     len_arg = len(len_arg)
+
     for country_currency in args:
         second_layer.append(
             InlineKeyboardButton(
@@ -60,12 +67,14 @@ def create_inline_buttons(*args, **kwargs):
             )
 
         if len(second_layer) == 5 and len(country_currency[0]) == 1:
+            # Check len(country_currency[0]) == 1 country_currency[0]-> 'A'
             len_arg -= 5
             first_layer.append(
                 copy_second_layer(second_layer, buttons))
             second_layer.clear()
 
-        elif len_arg < 5 and len_arg >= 1 and len(country_currency[0]) == 1:
+        elif len_arg == 4 and len_arg >= 1 and len(country_currency[0]) == 1:
+            len_arg -= 4
             buttons = second_layer.copy()
             first_layer.append(buttons)
             second_layer.clear()
@@ -77,10 +86,10 @@ def create_inline_buttons(*args, **kwargs):
             second_layer.clear()
 
         elif len_arg <= 2 and len(country_currency[0]) > 1:
+            len_arg -= 2
             first_layer.append(
                 copy_second_layer(second_layer, buttons))
             second_layer.clear()
-
     return first_layer
 
 
