@@ -1,11 +1,10 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 from inline_buttons import currency_keyboard, alfabet_keyboard
-from keyboard import main_key_board
 from crud import DatabaseWrite, DatabaseRead, user_currency_update
-from settings import INFO_FROM_BUTTONS, INFO
+from settings import INFO
 
-INFO_FROM_BUTTONS
+
 INFO
 
 
@@ -90,11 +89,10 @@ async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
             first_currency=first_curren,
             second_currency=second_curren
         )
-        print(user_and_first_currency['user'])
+        print(user_and_first_currency)
 
     await update.callback_query.edit_message_text(
-        text="That's all. Do you need main /key_board?",
-        reply_markup=main_key_board()
+        text="That's all. Please use the main /key_board"
     )
     INFO.clear()
     return ConversationHandler.END

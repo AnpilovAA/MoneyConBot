@@ -34,8 +34,24 @@ def data_for_currency_db(*args, **kwargs):
     return symbols_name_value
 
 
+def value_for_currency_db(*args, **kwargs):
+    rate = [json for json in args]
+    rates = rate[0]['rates']
+
+    symbols_and_rates = []
+
+    for symbol, value in rates.items():
+        symbol_value = ()
+        symbol_value += (symbol, value,)
+        symbols_and_rates.append(symbol_value)
+    generator = (symbol_rate for symbol_rate in symbols_and_rates)
+    return generator
+
+
 def request_api(tumbler=True):
     if tumbler:
-        a = symbols_request(URL_SYMBOLS)
-        b = symbols_request(URL_VALUE)
-        return data_for_currency_db(a, b)
+        name_and_symbols = symbols_request(URL_SYMBOLS)
+        symbols_and_value = symbols_request(URL_VALUE)
+        return data_for_currency_db(name_and_symbols, symbols_and_value)
+    symbols_and_value = symbols_request(URL_VALUE)
+    return value_for_currency_db(symbols_and_value)

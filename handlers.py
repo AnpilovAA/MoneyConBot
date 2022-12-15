@@ -1,5 +1,6 @@
 from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import ContextTypes
+from string import punctuation
 
 from inline_buttons import alfabet_keyboard
 from keyboard import main_key_board
@@ -60,13 +61,15 @@ async def get_second_currency(
 async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user.id
     user_text = update.message.text
+    try:
+        user_text = validate_user_text(user_text)
 
-    if DatabaseWrite.check_user_in_user_currency_db(user) is False:
-        try:
-            if float(user_text):
-                user_value = float(user_text)
+        user_in_db = DatabaseWrite.check_user_in_user_currency_db(user) is False
+
+        if user_text != None and user_in_db:
+            user_value = float(user_text)
+            if isinstance(user_value, float):
                 values = DatabaseRead.currency_values(user)
-
                 first_value = values[0]
                 second_value = values[1]
 
@@ -76,11 +79,14 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 coefficient = second_value / first_value
                 result = user_value * float(coefficient)
                 result = "%.2f" % result
-                await update.message.reply_text(
+                return await update.message.reply_text(
                         f'{user_text} {name_main_curren} {result} {name_second_curren}'
                     )
-        except ValueError:
-            return None
+        await update.message.reply_text(
+            text='Sorry, I can’t convert the letters'
+        )
+    except Exception as ex:
+        print(ex)
 
 
 async def change_main_currency(update: Update,
@@ -139,3 +145,35 @@ async def switch(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         text=f'Now you main is {second}, and second is {first}'
     )
+
+
+def validate_user_text(user_value):
+    try:
+        punct = [punct for punct in punctuation if punct != '.']
+        user_value = user_text_filter(user_value, punct)
+        for symbol in user_value:
+            if symbol in punct and symbol != '.':
+                user_value = user_value.replace(symbol, '.')
+                break
+        return user_value
+    except Exception as ex:
+        print(ex, '-validate_user_text- func')
+
+
+def user_text_filter(user_value, punct):
+    counter = 0
+    filters_the_user_value = ''
+    for symbol in user_value:
+        try:
+            if int(symbol):
+                filters_the_user_value += symbol
+        except Exception:
+            if symbol in punct and counter < 1:
+                counter += 1
+                filters_the_user_value += symbol
+            elif symbol == '.':
+                counter += 1
+                filters_the_user_value += symbol
+            elif str.isalpha(symbol):
+                return None
+    return filters_the_user_value

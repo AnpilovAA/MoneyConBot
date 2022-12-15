@@ -2,6 +2,8 @@ import logging
 from telegram.ext import (ApplicationBuilder, CommandHandler,
                           ConversationHandler, CallbackQueryHandler,
                           MessageHandler, filters)
+from datetime import time
+from pytz import timezone
 from settings import TOKEN
 from db import Base, engine
 from currency_handler import (alfabet_first, second_alfabet,
@@ -12,6 +14,7 @@ from currency_handler import (alfabet_first, second_alfabet,
 from handlers import (start, key_board, hide_key_board, get_main_currency,
                       get_second_currency, convert, change_main_currency,
                       change_second_currency, switch)
+from job_queue import update_currencies_value
 
 
 logging.basicConfig(
@@ -24,6 +27,11 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
 
     application = ApplicationBuilder().token(TOKEN).build()
+
+    job_time = time(hour=14, minute=5, tzinfo=timezone('Asia/Tbilisi'))
+
+    job_queue = application.job_queue
+    job = job_queue.run_daily(update_currencies_value, job_time)
 
     start_handler = CommandHandler('start', start)
 

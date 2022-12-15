@@ -65,27 +65,29 @@ def create_inline_buttons(*args, **kwargs):
                 text=country_currency[0],
                 callback_data=country_currency[1])
             )
+        len_country_currency = len(country_currency[0])
+        len_second_layer = len(second_layer)
 
-        if len(second_layer) == 5 and len(country_currency[0]) == 1:
+        if len_second_layer == 5 and len_country_currency == 1:
             # Check len(country_currency[0]) == 1 country_currency[0]-> 'A'
             len_arg -= 5
             first_layer.append(
                 copy_second_layer(second_layer, buttons))
             second_layer.clear()
 
-        elif len_arg == 4 and len_arg >= 1 and len(country_currency[0]) == 1:
-            len_arg -= 4
+        elif len_second_layer == len_arg and len_arg < 5 and len_country_currency == 1:
+            len_arg -= len_arg
             buttons = second_layer.copy()
             first_layer.append(buttons)
             second_layer.clear()
 
-        elif len(second_layer) == 2 and len(country_currency[0]) > 1:
+        elif len_second_layer == 2 and len_country_currency > 1:
             len_arg -= 2
             first_layer.append(
                 copy_second_layer(second_layer, buttons))
             second_layer.clear()
 
-        elif len_arg <= 2 and len(country_currency[0]) > 1:
+        elif len_arg <= 2 and len_country_currency > 1:
             len_arg -= 2
             first_layer.append(
                 copy_second_layer(second_layer, buttons))
