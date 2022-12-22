@@ -98,7 +98,3 @@ def create_inline_buttons(*args, **kwargs):
 def copy_second_layer(second_layer: list, buttons: list):
     buttons = second_layer.copy()
     return buttons
-
-
-if __name__ == '__main__':
-    alfabet_keyboard()

@@ -2,6 +2,7 @@ import logging
 from telegram.ext import (ApplicationBuilder, CommandHandler,
                           ConversationHandler, CallbackQueryHandler,
                           MessageHandler, filters)
+from telegram import MenuButtonCommands
 from datetime import time
 from pytz import timezone
 from settings import TOKEN
@@ -10,11 +11,11 @@ from currency_handler import (alfabet_first, second_alfabet,
                               start_choose_currancy,
                               first_currency, second_currency, restart,
                               change_main, change_second,
-                              back_main, back_second)
+                              back_main, back_second, stop_change)
 from handlers import (start, key_board, hide_key_board, get_main_currency,
                       get_second_currency, convert, change_main_currency,
                       change_second_currency, switch)
-from job_queue import update_currencies_value
+from job_queue import load_data_to_currency_db, update_currencies_value
 
 
 logging.basicConfig(
@@ -27,10 +28,12 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
 
     application = ApplicationBuilder().token(TOKEN).build()
+    MenuButtonCommands.COMMANDS
+    job_queue = application.job_queue
+
+    # job_once = job_queue.run_once(load_data_to_currency_db, 5)
 
     job_time = time(hour=14, minute=5, tzinfo=timezone('Asia/Tbilisi'))
-
-    job_queue = application.job_queue
     job = job_queue.run_daily(update_currencies_value, job_time)
 
     start_handler = CommandHandler('start', start)
@@ -98,7 +101,7 @@ if __name__ == '__main__':
                 CallbackQueryHandler(change_main, pattern=str)
                 ]
         },
-        fallbacks=[MessageHandler(filters.ALL, change_main_currency)]
+        fallbacks=[MessageHandler(filters.ALL, stop_change)]
     )
 
     change_second_handler = ConversationHandler(
@@ -113,7 +116,7 @@ if __name__ == '__main__':
                 CallbackQueryHandler(change_second, pattern=str)
                 ]
         },
-        fallbacks=[MessageHandler(filters.ALL, change_second_currency)]
+        fallbacks=[MessageHandler(filters.ALL, stop_change)]
     )
 
     application.add_handlers((

@@ -80,32 +80,21 @@ async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     insert_data = DatabaseWrite()
 
     if user in user_and_first_currency['user']:
-
-        user = user_and_first_currency['user'][0]
-        first_curren = user_and_first_currency['user'][1]
-        second_curren = second_currency
-        insert_data.insert_currency_to_db(
-            user=user,
-            first_currency=first_curren,
-            second_currency=second_curren
-        )
-        print(user_and_first_currency)
-
+        try:
+            user = user_and_first_currency['user'][0]
+            first_curren = user_and_first_currency['user'][1]
+            second_curren = second_currency
+            insert_data.insert_currency_to_db(
+                user=user,
+                first_currency=first_curren,
+                second_currency=second_curren
+            )
+        except Exception as ex:
+            print(ex, 'second_currency func')
     await update.callback_query.edit_message_text(
         text="That's all. Please use the main /key_board"
     )
     INFO.clear()
-    return ConversationHandler.END
-
-
-async def restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    global INFO
-
-    INFO.clear()
-
-    await update.message.reply_text(
-     "Sorry i don't understant( Do you want try /start_choose_currancy again?"
-    )
     return ConversationHandler.END
 
 
@@ -156,3 +145,20 @@ async def back_second(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     return 'alfa-second'
+
+
+async def restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global INFO
+
+    INFO.clear()
+
+    await update.message.reply_text(
+     "Sorry i don't understant( Do you want try /start_choose_currancy again?"
+    )
+    return ConversationHandler.END
+
+
+async def stop_change(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        text='Shift break'
+    )

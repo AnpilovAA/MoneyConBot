@@ -1,9 +1,10 @@
 from db import session
+from api_requests import request_api
 from models import Currency, Users, UserCurrencies
 from sqlalchemy import select
 from sqlalchemy.orm import lazyload
-from sqlalchemy.exc import NoResultFound
-from api_requests import request_api
+from sqlalchemy.exc import NoResultFound, IntegrityError, PendingRollbackError
+from psycopg2.errors import UniqueViolation
 
 
 class DataBaseSession:
@@ -75,6 +76,8 @@ class DatabaseWrite(DataBaseSession):
             )
             return self.add_to_db(insert_data)
 
+        except (IntegrityError, PendingRollbackError, UniqueViolation) as uniq:
+            print(uniq, 'in DatabaseWrite insert_currency_to_db', symbol)
         except Exception as ex:
             print(ex)
 
@@ -109,22 +112,9 @@ class DatabaseRead(DataBaseSession):
     @classmethod
     def take_data_from_currency_db(cls):
         try:
-            query = session.query(Currency).options(lazyload(Currency)).all()
-            if len(query) == 0:
-
-                insert_to_currency_db = DatabaseWrite()
-                symblo_name_value = request_api()
-
-                for symbol_fullname_value in symblo_name_value:
-                    print(symblo_name_value)
-                    insert_to_currency_db.insert_data_to_currency_db(
-                        symbol_fullname_value[0],
-                        symbol_fullname_value[1],
-                        symbol_fullname_value[2])
-                DatabaseRead.take_data_from_currency_db()
+            query = session.query(Currency).first()
         except NoResultFound as empty:
-            print(empty)
-
+            print(empty, 'empty in DatabaseRead take_data_from_currency_db')
         else:
             return query
 
@@ -154,7 +144,7 @@ class DatabaseUpdate(DataBaseSession):
     def __init__(self) -> None:
         super().__init__()
 
-    def update_user_currency(self, user, currency, tumbler=True):
+    def update_user_currency_db(self, user, currency, tumbler=True):
         try:
             user_user_currency = select(UserCurrencies
                                         ).where(UserCurrencies.user_id == user)
@@ -170,7 +160,7 @@ class DatabaseUpdate(DataBaseSession):
         except Exception as ex:
             print(ex)
 
-    def update_currency_value(self, short_name, value):
+    def update_currency_db_value(self, short_name, value):
         try:
             currency = select(Currency).where(
                 Currency.short_name == short_name)
@@ -197,6 +187,21 @@ class DatabaseUpdate(DataBaseSession):
         except Exception as ex:
             print(ex)
 
+    def update_the_entire_currency_db(self, symbol, name, value):
+        try:
+            update = select(Currency).where(
+                Currency.short_name == symbol)
+            update_row = session.scalar(update)
+
+            update_row.short_name = symbol
+            update_row.full_name = name
+            update_row.currency_value = value
+
+            return self.update_commit_or_rollback()
+        except Exception as ex:
+            print(ex, 'DatabaseUpdate update_the_entire_currency_db')
+            print(symbol, name)
+
     @classmethod
     def update_commit_or_rollback(cls):
         try:
@@ -218,8 +223,8 @@ def user_currency_update(user, currency, tumbler=True):
     update = DatabaseUpdate()
     try:
         if tumbler:
-            return update.update_user_currency(user, currency)
-        return update.update_user_currency(user, currency, False)
+            return update.update_user_currency_db(user, currency)
+        return update.update_user_currency_db(user, currency, False)
     except Exception as ex:
         print(ex)
 
@@ -229,7 +234,7 @@ def update_currency_rates(generator):
     update_rate = DatabaseUpdate()
     try:
         for symbol_rate in symbol_and_rate:
-            update_rate.update_currency_value(
+            update_rate.update_currency_db_value(
                 short_name=symbol_rate[0],
                 value=symbol_rate[1]
             )
@@ -237,7 +242,29 @@ def update_currency_rates(generator):
         print(ex, 'in crud func update_currency_rates')
 
 
+def update_currency_db(tumbler=True):
+    symbol_name_value = request_api()
+
+    if tumbler:
+        insert_to_currency_db = DatabaseWrite()
+        for symbol_fullname_value in symbol_name_value:
+            insert_to_currency_db.insert_data_to_currency_db(
+                symbol_fullname_value[0],
+                symbol_fullname_value[1],
+                symbol_fullname_value[2])
+        return 'Currency database filled'
+    else:
+        update = DatabaseUpdate()
+        for symbol_fullname_value in symbol_name_value:
+            update.update_the_entire_currency_db(
+                symbol_fullname_value[0],
+                symbol_fullname_value[1],
+                symbol_fullname_value[2])
+        return 'Currency database updated'
+
+
 if __name__ == '__main__':
-    a = DatabaseRead.db_currency_filter_by_letter('A')
-    for i in a:
-        print(i.full_name)
+    if DatabaseRead.take_data_from_currency_db():
+        print('not empty')
+
+    # print(update_currency_db(False))

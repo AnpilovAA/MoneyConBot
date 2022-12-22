@@ -73,17 +73,17 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 first_value = values[0]
                 second_value = values[1]
 
-                name_main_curren = query_currency(user)
+                name_main = query_currency(user)
                 name_second_curren = query_currency(user, False)
 
                 coefficient = second_value / first_value
                 result = user_value * float(coefficient)
                 result = "%.2f" % result
                 return await update.message.reply_text(
-                        f'{user_text} {name_main_curren} {result} {name_second_curren}'
+                 f'{user_text} {name_main} {result} {name_second_curren}'
                     )
         await update.message.reply_text(
-            text='Sorry, I can’t convert the letters'
+            text='Sorry, I can`t convert the letters or symbol'
         )
     except Exception as ex:
         print(ex)
@@ -163,9 +163,11 @@ def validate_user_text(user_value):
 def user_text_filter(user_value, punct):
     counter = 0
     filters_the_user_value = ''
+    if not int(user_value[0]):
+        return None
     for symbol in user_value:
         try:
-            if int(symbol):
+            if int(symbol) or symbol == '0':
                 filters_the_user_value += symbol
         except Exception:
             if symbol in punct and counter < 1:
@@ -177,3 +179,7 @@ def user_text_filter(user_value, punct):
             elif str.isalpha(symbol):
                 return None
     return filters_the_user_value
+
+
+if __name__ == '__main__':
+    validate_user_text('10')

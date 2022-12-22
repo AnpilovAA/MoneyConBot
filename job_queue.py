@@ -1,6 +1,6 @@
 from telegram.ext import ContextTypes
 from api_requests import request_api
-from crud import update_currency_rates
+from crud import update_currency_db, update_currency_rates
 from settings import MY_ID
 
 
@@ -15,7 +15,11 @@ async def update_currencies_value(context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-if __name__ == '__main__':
-    symbols_and_values = request_api(False)
-    update_currency_rates(symbols_and_values)
-    # print(symbols_and_values)
+async def load_data_to_currency_db(context: ContextTypes.DEFAULT_TYPE):
+
+    try:
+        if 
+    await context.bot.send_message(
+        chat_id=MY_ID,
+        text=f'{update_currency_db()}'
+    )
