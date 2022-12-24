@@ -110,7 +110,6 @@ async def change_main_currency(update: Update,
         text='Please choose currency',
         reply_markup=alfabet_keyboard()
     )
-    INFO.clear()
     return 'alfa'
 
 
@@ -130,7 +129,6 @@ async def change_second_currency(update: Update,
         text='Please choose currency',
         reply_markup=alfabet_keyboard()
     )
-    INFO.clear()
     return 'alfa-second'
 
 

@@ -45,6 +45,7 @@ def validate_data(generator):
         #  find the currency selected first
         for mean in check_list:
             if mean in INFO:
+                print(mean, INFO)
                 #  remove tuple with user selected currency for next button
                 validate_list.remove(check_list)
     return tuple(validate_list)

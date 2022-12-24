@@ -106,6 +106,8 @@ async def change_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
     currency = query.data
     user_currency_update(user, currency)
 
+    INFO.clear()
+
     await update.callback_query.edit_message_text(
         text=f'You main currency is {currency} now'
     )
@@ -119,6 +121,8 @@ async def change_second(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user.id
     currency = query.data
     user_currency_update(user, currency, False)
+
+    INFO.clear()
 
     await update.callback_query.edit_message_text(
         text=f'You second currency is {currency} now'
