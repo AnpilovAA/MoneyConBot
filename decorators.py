@@ -7,8 +7,9 @@ def add_button_back(func):
         if len(all_args[0][0]) > 1:
 
             all_args.append(back_button)
-            f = func(*all_args)
-            return f
+            create_inline_buttons = func(*all_args)
+
+            return create_inline_buttons
         else:
             return func(*args, **kwargs)
 

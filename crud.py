@@ -2,7 +2,6 @@ from db import session
 from api_requests import request_api
 from models import Currency, Users, UserCurrencies
 from sqlalchemy import select
-from sqlalchemy.orm import lazyload
 from sqlalchemy.exc import NoResultFound, IntegrityError, PendingRollbackError
 from psycopg2.errors import UniqueViolation
 
@@ -36,7 +35,7 @@ class DatabaseWrite(DataBaseSession):
                 return self.add_to_db(Users(user_id=user_id))
 
         except Exception as ex:
-            print('\n', ex)
+            print('\n', ex, 'DatabaseWrite, insert_user_to_db')
 
     @classmethod
     def check_user_in_user_currency_db(
@@ -48,7 +47,7 @@ class DatabaseWrite(DataBaseSession):
             if query.user_id == user:
                 return False
         except Exception as ex:
-            print(ex)
+            print(ex, 'DatabaseWrite, check_user_in_user_currency_db')
             return True
 
     def insert_currency_to_db(self,
@@ -79,7 +78,7 @@ class DatabaseWrite(DataBaseSession):
         except (IntegrityError, PendingRollbackError, UniqueViolation) as uniq:
             print(uniq, 'in DatabaseWrite insert_currency_to_db', symbol)
         except Exception as ex:
-            print(ex)
+            print(ex, 'in DatabaseWrite insert_currency_to_db Excrption')
 
     @classmethod
     def add_to_db(cls, object):
@@ -87,7 +86,7 @@ class DatabaseWrite(DataBaseSession):
             session.add(object)
         except Exception as ex:
             session.rollback()
-            print(ex)
+            print(ex, 'DatabaseWrite, add_to_db')
         else:
             session.commit()
             session.close()
@@ -107,28 +106,31 @@ class DatabaseRead(DataBaseSession):
             return query.second_currency_short_name
 
         except Exception as ex:
-            print(ex)
+            print(ex, 'DatabaseRead get_user_currency')
 
     @classmethod
     def take_data_from_currency_db(cls):
         try:
             query = session.query(Currency).first()
         except NoResultFound as empty:
-            print(empty, 'empty in DatabaseRead take_data_from_currency_db')
+            print(empty, 'in DatabaseRead take_data_from_currency_db')
         else:
             return query
 
     @classmethod
     def currency_values(cls, user):
-        values = []
-        first_currency = query_currency(user=user)
-        second_currency = query_currency(user=user, tumbler=False)
-        name_currency = [first_currency, second_currency]
-        for name in name_currency:
-            query = session.query(Currency).filter_by(
-                short_name=name).one()
-            values.append(query.currency_value)
-        return values
+        try:
+            values = []
+            first_currency = query_currency(user=user)
+            second_currency = query_currency(user=user, tumbler=False)
+            name_currency = [first_currency, second_currency]
+            for name in name_currency:
+                query = session.query(Currency).filter_by(
+                    short_name=name).one()
+                values.append(query.currency_value)
+            return values
+        except Exception as ex:
+            print(ex, 'DatabaseRead currency_values')
 
     @classmethod
     def db_currency_filter_by_letter(cls, name):
@@ -137,7 +139,7 @@ class DatabaseRead(DataBaseSession):
                 Currency.full_name.like(f'{name}%')).all()
             return query
         except Exception as ex:
-            print(ex)
+            print(ex, 'DatabaseRead db_currency_filter_by_letter')
 
 
 class DatabaseUpdate(DataBaseSession):
@@ -158,7 +160,7 @@ class DatabaseUpdate(DataBaseSession):
                 return self.update_commit_or_rollback()
 
         except Exception as ex:
-            print(ex)
+            print(ex, 'DatabaseUpdate update_user_currency_db')
 
     def update_currency_db_value(self, short_name, value):
         try:
@@ -170,7 +172,10 @@ class DatabaseUpdate(DataBaseSession):
             return self.update_commit_or_rollback()
 
         except Exception as ex:
-            print(ex, short_name)
+            print(
+                f'{ex}, {short_name}, not in Currency db\
+                 raise in DatabaseUpdate update_currency_db_value'
+                )
 
     def switch_user_currencies(self, user, currency):
         try:
@@ -185,7 +190,7 @@ class DatabaseUpdate(DataBaseSession):
             return self.update_commit_or_rollback()
 
         except Exception as ex:
-            print(ex)
+            print(ex, 'DatabaseUpdate switch_user_currencies')
 
     def update_the_entire_currency_db(self, symbol, name, value):
         try:
@@ -261,10 +266,3 @@ def update_currency_db(tumbler=True):
                 symbol_fullname_value[1],
                 symbol_fullname_value[2])
         return 'Currency database updated'
-
-
-if __name__ == '__main__':
-    if DatabaseRead.take_data_from_currency_db():
-        print('not empty')
-
-    # print(update_currency_db(False))
