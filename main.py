@@ -85,8 +85,9 @@ if __name__ == '__main__':
         },
 
         fallbacks=[
-            MessageHandler(filters.ALL, restart)
-            ]
+            MessageHandler(filters.ALL, restart),
+            ],
+        conversation_timeout=30
     )
 
     change_main_handler = ConversationHandler(
