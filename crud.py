@@ -23,7 +23,7 @@ class DatabaseWrite(DataBaseSession):
                                   ).filter_by(user_id=user_id
                                               ).one()
         except NoResultFound as empty:
-            print(empty, 'and was added')
+            print(empty, 'DatabaseWrite check_user_in_users_db, and was added')
             return True
         else:
             if query.user_id == user_id:
@@ -47,7 +47,8 @@ class DatabaseWrite(DataBaseSession):
             if query.user_id == user:
                 return False
         except Exception as ex:
-            print(ex, 'DatabaseWrite, check_user_in_user_currency_db')
+            print(ex, f' {user} not in DatabaseWrite,\
+            check_user_in_user_currency_db')
             return True
 
     def insert_currency_to_db(self,

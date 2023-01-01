@@ -1,7 +1,7 @@
 import logging
 from telegram.ext import (ApplicationBuilder, CommandHandler,
                           ConversationHandler, CallbackQueryHandler,
-                          MessageHandler, filters)
+                          MessageHandler, filters, InlineQueryHandler)
 from telegram import MenuButtonCommands
 from datetime import time
 from pytz import timezone
@@ -15,6 +15,7 @@ from currency_handler import (alfabet_first, second_alfabet,
 from handlers import (start, key_board, hide_key_board, get_main_currency,
                       get_second_currency, convert, change_main_currency,
                       change_second_currency, switch)
+from inline_query import inline_test
 from job_queue import load_data_to_currency_db, update_currencies_value
 
 
@@ -87,7 +88,7 @@ if __name__ == '__main__':
         fallbacks=[
             MessageHandler(filters.ALL, restart),
             ],
-        conversation_timeout=30
+        conversation_timeout=30,
     )
 
     change_main_handler = ConversationHandler(
@@ -120,6 +121,8 @@ if __name__ == '__main__':
         fallbacks=[MessageHandler(filters.ALL, stop_change)]
     )
 
+    test_inline_handler = InlineQueryHandler(inline_test)
+
     application.add_handlers((
         start_handler,
         currency_handler,
@@ -130,6 +133,7 @@ if __name__ == '__main__':
         change_main_handler,
         change_second_handler,
         switch_handler,
+        test_inline_handler,
         convert_handler,
     ))
 
