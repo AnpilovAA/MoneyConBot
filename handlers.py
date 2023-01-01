@@ -44,9 +44,13 @@ async def get_main_currency(
     user = update.effective_user.id
     result = query_currency(user)
 
+    if result is not None:
+        await update.message.reply_text(
+            text=f'Your main currency is - {result} /change_main_currency'
+        )
     await update.message.reply_text(
-        text=f'Your main currency is - {result} /change_main_currency'
-    )
+            text='Please try first /start_choose_currancy'
+        )
 
 
 async def get_second_currency(
@@ -54,9 +58,13 @@ async def get_second_currency(
     user = update.effective_user.id
     result = query_currency(user, False)
 
+    if result is not None:
+        await update.message.reply_text(
+            text=f'Your second currency is - {result} /change_second_currency'
+        )
     await update.message.reply_text(
-        text=f'Your second currency is - {result} /change_second_currency'
-    )
+            text='Please try first /start_choose_currancy'
+        )
 
 
 async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -66,37 +74,6 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         text=convert_value(user, user_text)
     )
-    # request = DatabaseWrite.check_user_in_user_currency_db(user)
-    # user_in_db = request is False  # -> True User in Database
-
-    # if user_in_db:
-    #     try:
-    #         user_text = validate_user_text(user_text)
-
-    #         if user_text is not None:
-    #             user_value = float(user_text)
-    #             if isinstance(user_value, float):
-    #                 values = DatabaseRead.currency_values(user)
-    #                 first_value = values[0]
-    #                 second_value = values[1]
-
-    #                 name_main = query_currency(user)
-    #                 name_second = query_currency(user, False)
-
-    #                 coefficient = second_value / first_value
-    #                 result = user_value * float(coefficient)
-    #                 result = "%.2f" % result
-    #                 return await update.message.reply_text(
-    #                     f'{user_text} {name_main} = {result} {name_second}'
-    #                     )
-    #         await update.message.reply_text(
-    #             text='Sorry, I can`t convert the letters or symbol'
-    #         )
-    #     except Exception as ex:
-    #         print(ex)
-    # await update.message.reply_text(
-    #     text='Please try first /start_choose_currancy'
-    # )
 
 
 async def change_main_currency(update: Update,
