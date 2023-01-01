@@ -45,7 +45,7 @@ async def get_main_currency(
     result = query_currency(user)
 
     if result is not None:
-        await update.message.reply_text(
+        return await update.message.reply_text(
             text=f'Your main currency is - {result} /change_main_currency'
         )
     await update.message.reply_text(
@@ -59,7 +59,7 @@ async def get_second_currency(
     result = query_currency(user, False)
 
     if result is not None:
-        await update.message.reply_text(
+        return await update.message.reply_text(
             text=f'Your second currency is - {result} /change_second_currency'
         )
     await update.message.reply_text(
