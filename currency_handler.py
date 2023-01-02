@@ -92,8 +92,7 @@ async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as ex:
             print(ex, 'second_currency func')
     await update.callback_query.edit_message_text(
-        text="That's all try send me any numbers for conver\
-Please use the main /key_board"
+        text="That's all try send me any numbers for conver"
     )
     INFO.clear()
     return ConversationHandler.END
