@@ -8,7 +8,7 @@ from settings import INFO
 INFO
 
 
-async def start_choose_currancy(update: Update,
+async def start_choose_currency(update: Update,
                                 context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     await message.reply_text(
@@ -92,7 +92,8 @@ async def second_currency(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as ex:
             print(ex, 'second_currency func')
     await update.callback_query.edit_message_text(
-        text="That's all. Please use the main /key_board"
+        text="That's all try send me any numbers for conver\
+Please use the main /key_board"
     )
     INFO.clear()
     return ConversationHandler.END
@@ -157,7 +158,7 @@ async def restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
     INFO.clear()
 
     await update.message.reply_text(
-     "Sorry i don't understant( Do you want try /start_choose_currancy again?"
+     "Sorry i don't understant( Do you want try /start_choose_currency again?"
     )
     return ConversationHandler.END
 

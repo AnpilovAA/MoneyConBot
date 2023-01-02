@@ -21,7 +21,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await message.reply_text(
         text='Hello I am help convert currency to that you need\
-            /start_choose_currancy'
+            /start_choose_currency'
     )
 
 
@@ -49,7 +49,7 @@ async def get_main_currency(
             text=f'Your main currency is - {result} /change_main_currency'
         )
     await update.message.reply_text(
-            text='Please try first /start_choose_currancy'
+            text='Please try first /start_choose_currency'
         )
 
 
@@ -63,7 +63,7 @@ async def get_second_currency(
             text=f'Your second currency is - {result} /change_second_currency'
         )
     await update.message.reply_text(
-            text='Please try first /start_choose_currancy'
+            text='Please try first /start_choose_currency'
         )
 
 

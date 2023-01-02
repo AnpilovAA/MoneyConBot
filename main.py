@@ -8,7 +8,7 @@ from pytz import timezone
 from settings import TOKEN
 from db import Base, engine
 from currency_handler import (alfabet_first, second_alfabet,
-                              start_choose_currancy,
+                              start_choose_currency,
                               first_currency, second_currency, restart,
                               change_main, change_second,
                               back_main, back_second, stop_change)
@@ -58,9 +58,9 @@ if __name__ == '__main__':
 
         entry_points=[
             MessageHandler(
-                filters.Regex('^(restart)$'), start_choose_currancy
+                filters.Regex('^(restart)$'), start_choose_currency
                 ),
-            CommandHandler('start_choose_currancy', start_choose_currancy),
+            CommandHandler('start_choose_currancy', start_choose_currency),
             ],
 
         states={
