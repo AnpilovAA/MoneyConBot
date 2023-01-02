@@ -60,7 +60,7 @@ if __name__ == '__main__':
             MessageHandler(
                 filters.Regex('^(restart)$'), start_choose_currency
                 ),
-            CommandHandler('start_choose_currancy', start_choose_currency),
+            CommandHandler('start_choose_currency', start_choose_currency),
             ],
 
         states={

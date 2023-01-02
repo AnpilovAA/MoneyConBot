@@ -21,7 +21,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await message.reply_text(
         text='Hello I am help convert currency to that you need\
-            /start_choose_currency'
+        /start_choose_currency'
     )
 
 
