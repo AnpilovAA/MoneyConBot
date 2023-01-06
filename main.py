@@ -20,6 +20,7 @@ from job_queue import load_data_to_currency_db, update_currencies_value
 
 
 logging.basicConfig(
+    filename='MonConBot.log',
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
