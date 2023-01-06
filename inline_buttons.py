@@ -16,7 +16,6 @@ def alfabet_keyboard():
     buttons = ()
     for values in extract_value:
         result = DatabaseRead.db_currency_filter_by_letter(values[0])
-        print(result, 'in alfabet_keyboard()')
         if len(result) > 0:
             buttons += (values,)
     return InlineKeyboardMarkup(create_inline_buttons(*buttons))
