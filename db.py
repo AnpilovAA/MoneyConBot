@@ -3,10 +3,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from settings import DATABASE
-
-engine = create_engine(DATABASE)
-session = scoped_session(sessionmaker(bind=engine))
-
+try:
+    engine = create_engine(DATABASE)
+    session = scoped_session(sessionmaker(bind=engine))
+except Exception as ex:
+    print(ex, 'in db.py engine or session')
 Base = declarative_base()
 
 Base.metadata.create_all(bind=engine)
