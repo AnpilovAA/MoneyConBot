@@ -46,10 +46,11 @@ class DatabaseWrite(DataBaseSession):
             query = session.query(UserCurrencies).filter_by(user_id=user).one()
             if query.user_id == user:
                 return False
+            return True
         except Exception as ex:
+            session.rollback()
             print(ex, f' {user} not in DatabaseWrite,\
             check_user_in_user_currency_db')
-            return True
 
     def insert_currency_to_db(self,
                               user: int,

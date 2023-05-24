@@ -29,7 +29,8 @@ def convert_value(user, user_text, tubler=True):
         elif tubler is False:
             return ''
         else:
-            return 'Please try first /start_choose_currancy'
+            return 'Please try first /start_choose_currancy\n\
+                    Or try again to send the digits'
     except Exception as ex:
         print(ex, 'convert_value')
 

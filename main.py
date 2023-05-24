@@ -33,7 +33,7 @@ if __name__ == '__main__':
     MenuButtonCommands.COMMANDS
     job_queue = application.job_queue
 
-    # job_update_symbols = job_queue.run_once(load_data_to_currency_db, 5)
+    job_update_symbols = job_queue.run_once(load_data_to_currency_db, 5)
 
     job_time = time(hour=14, minute=5, tzinfo=timezone('Asia/Tbilisi'))
     job_update_rate = job_queue.run_daily(update_currencies_value, job_time)
